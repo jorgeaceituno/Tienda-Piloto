@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Producto - Mi Tienda Piloto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <i data-lucide="shopping-bag" class="logo-icon"></i>
+                <span>Mi Tienda Piloto</span>
+            </a>
+            <button class="cart-btn" id="cart-toggle">
+                <i data-lucide="shopping-cart"></i>
+                <span class="cart-count">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container py-16">
+        <a href="index.html" class="back-link"><i data-lucide="arrow-left"></i> Volver a la tienda</a>
+        
+        <div class="product-detail" id="product-detail-container">
+            <div style="text-align: center; width: 100%; padding: 2rem;">Cargando producto...</div>
+        </div>
+    </main>
+
+    <div class="cart-overlay" id="cart-overlay"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h2>Tu Carrito</h2>
+            <button class="close-btn" id="cart-close">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cart-items-container"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-amount">HNL 0.00</span>
+            </div>
+            <button class="btn btn-primary btn-block" id="checkout-btn" style="width: 100%;">Finalizar Compra</button>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto">
+        <div class="container">
+            <p>&copy; 2026 Mi Tienda Piloto. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Tienda Piloto</title>
+    <meta name="description" content="La mejor tienda online de tecnología, ropa, hogar y alimentos.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <i data-lucide="shopping-bag" class="logo-icon"></i>
+                <span>Mi Tienda Piloto</span>
+            </a>
+            <nav class="nav-links">
+                <a href="#destacados">Catálogo</a>
+                <a href="#ofertas">Ofertas</a>
+            </nav>
+            <button class="cart-btn" id="cart-toggle">
+                <i data-lucide="shopping-cart"></i>
+                <span class="cart-count">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-content">
+                <h1>Descubre productos increíbles</h1>
+                <p>La mejor selección de electrónica, ropa, hogar y alimentos.</p>
+                <a href="#destacados" class="btn btn-primary">Ver Catálogo</a>
+            </div>
+        </section>
+
+        <!-- Categories Filter -->
+        <section class="categories container py-8" style="padding-top: 3rem;">
+            <div class="category-grid" id="category-grid">
+                <button class="category-btn active" data-filter="all">Todos</button>
+                <button class="category-btn" data-filter="electronica">Electrónica</button>
+                <button class="category-btn" data-filter="ropa">Ropa</button>
+                <button class="category-btn" data-filter="hogar">Hogar</button>
+                <button class="category-btn" data-filter="alimentos">Alimentos</button>
+            </div>
+        </section>
+
+        <section id="destacados" class="container pb-16">
+            <h2 class="section-title">Productos Destacados</h2>
+            <div class="product-grid" id="products-container">
+                <!-- Products injected here -->
+            </div>
+        </section>
+
+        <section id="ofertas" class="container py-8" style="padding-bottom: 4rem;">
+            <div class="offers-banner">
+                <div class="offers-content" style="position: relative; z-index: 2;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: 800;">¡Gran Oferta de Apertura!</h2>
+                    <p style="font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.9;">Envío gratis en todas tus compras pagando por WhatsApp.</p>
+                    <button class="btn btn-primary" style="background: white; color: var(--primary);" onclick="window.scrollTo({top: document.getElementById('category-grid').offsetTop, behavior: 'smooth'});">Ver Productos</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="cart-overlay" id="cart-overlay"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h2>Tu Carrito</h2>
+            <button class="close-btn" id="cart-close">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cart-items-container"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-amount">HNL 0.00</span>
+            </div>
+            <button class="btn btn-primary btn-block" id="checkout-btn" style="width: 100%;">Finalizar Compra</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Mi Tienda Piloto. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
