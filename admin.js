@@ -15,48 +15,12 @@ if (!isLoggedIn) {
     }
 }
 
-// Data Handling
-let localProducts = JSON.parse(localStorage.getItem('productos')) || [];
+// Init Supabase
+const supabaseUrl = 'https://qcjzppndhbtseddprvyl.supabase.co';
+const supabaseKey = 'sb_publishable_L1yKNMrWaiM-pKCzyUuxyA_9Zbwo4vg';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Fallback to exactly 4 default products if localStorage is totally empty
-if (localProducts.length === 0) {
-    localProducts = [
-        {
-            id: 1,
-            title: "Smartphone Pro Max 256GB",
-            category: "electronica",
-            price: 32000,
-            desc: "El smartphone más potente de la nueva generación, pantalla OLED de 6.7 pulgadas y batería para todo el día.",
-            img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400"
-        },
-        {
-            id: 2,
-            title: "Laptop UltraBook 14\"",
-            category: "electronica",
-            price: 24500,
-            desc: "Rendimiento sin límites en un diseño ultradelgado. Procesador de última generación, 16GB de RAM y 512GB SSD.",
-            img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400"
-        },
-        {
-            id: 5,
-            title: "Camiseta Básica de Algodón Premium",
-            category: "ropa",
-            price: 450,
-            desc: "Camiseta 100% algodón orgánico, suave al tacto y de corte moderno. Para cualquier ocasión.",
-            img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400"
-        },
-        {
-            id: 7,
-            title: "Sofá de Sala 3 Plazas",
-            category: "hogar",
-            price: 8500,
-            desc: "Sofá moderno y confortable. Fabricado con tela premium resistente a manchas.",
-            img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400"
-        }
-    ];
-    localStorage.setItem('productos', JSON.stringify(localProducts));
-}
-
+let localProducts = [];
 let base64ImageString = "";
 
 // Image Upload with Canvas compression
@@ -66,11 +30,10 @@ function previewImage(event) {
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        // We draw the image on a canvas to compress it (localStorage size limit precaution)
         const img = new Image();
         img.onload = function() {
             const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 800; // Limit image width purely for prototype sizes
+            const MAX_WIDTH = 800;
             let width = img.width;
             let height = img.height;
 
@@ -84,7 +47,6 @@ function previewImage(event) {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
             
-            // Convert back to Base64 compressed JPEG
             base64ImageString = canvas.toDataURL('image/jpeg', 0.85); 
             
             const preview = document.getElementById('img-preview');
@@ -99,10 +61,9 @@ function previewImage(event) {
 function renderAdminProducts() {
     const container = document.getElementById('admin-product-list');
     container.innerHTML = '';
-    
     document.getElementById('product-count').textContent = `${localProducts.length} productos`;
 
-    [...localProducts].reverse().forEach(prod => { // Mostramos subidos recientes arriba
+    [...localProducts].reverse().forEach(prod => { // Mostramos recientes arriba
         container.innerHTML += `
             <div style="display:flex; gap:1rem; align-items:center; padding:1rem; border:1px solid #eee; border-radius:8px; background:#fcfcfc;">
                 <img src="${prod.img}" alt="${prod.title}" style="width:70px; height:70px; object-fit:cover; border-radius:6px; background:#e0e0e0;">
@@ -120,10 +81,32 @@ function renderAdminProducts() {
     });
 }
 
+async function fetchAdminProducts() {
+    const { data, error } = await supabaseClient
+        .from('productos')
+        .select('*')
+        .order('id', { ascending: true });
+        
+    if (error) {
+        console.error("Error fetching products:", error);
+    } else if (data) {
+        localProducts = data.map(p => ({
+            ...p,
+            desc: p.description
+        }));
+    }
+    renderAdminProducts();
+}
+
 // Form Submission (Add/Edit)
 const form = document.getElementById('admin-form');
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // Mostramos estado de carga
+    const btnSubmit = form.querySelector('button[type="submit"]');
+    btnSubmit.textContent = "Guardando en PostgreSQL...";
+    btnSubmit.disabled = true;
     
     const editId = document.getElementById('edit-id').value;
     const title = document.getElementById('title').value;
@@ -131,60 +114,64 @@ form.addEventListener('submit', (e) => {
     const price = parseFloat(document.getElementById('price').value);
     const desc = document.getElementById('desc').value;
     
-    if (editId) {
-        // Mode: Edit
-        const index = localProducts.findIndex(p => p.id == editId);
-        if(index !== -1) {
-            localProducts[index].title = title;
-            localProducts[index].category = category;
-            localProducts[index].price = price;
-            localProducts[index].desc = desc;
-            // Only update image if a new one was uploaded
-            if (base64ImageString !== "") {
-                localProducts[index].img = base64ImageString;
-            }
-        }
-    } else {
-        // Mode: Add
-        const newId = localProducts.length > 0 ? Math.max(...localProducts.map(p => p.id)) + 1 : 1;
-        
-        let finalImage = base64ImageString;
-        if(finalImage === "") {
-            // Default placeholder if no image uploaded
-            finalImage = "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400";
-        }
+    const productData = {
+        title: title,
+        category: category,
+        price: price,
+        description: desc
+    };
+    
+    let isEditing = editId !== "";
+    let finalImage = base64ImageString;
 
-        localProducts.push({
-            id: newId,
-            title,
-            category,
-            price,
-            desc,
-            img: finalImage
-        });
+    if (isEditing) {
+        if (finalImage !== "") {
+            productData.img = finalImage;
+        }
+        const { error } = await supabaseClient
+            .from('productos')
+            .update(productData)
+            .eq('id', editId);
+            
+        if(error) alert("Error al actualizar: " + error.message);
+    } else {
+        if(finalImage === "") {
+            finalImage = "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400"; // Fallback
+        }
+        productData.img = finalImage;
+        const { error } = await supabaseClient
+            .from('productos')
+            .insert([productData]);
+            
+        if(error) alert("Error al insertar: " + error.message);
     }
 
-    // Persist to localStorage
-    localStorage.setItem('productos', JSON.stringify(localProducts));
-    
     resetForm();
-    renderAdminProducts();
+    await fetchAdminProducts();
     
-    // Smooth scroll down to new item if adding, or simple alert
-    alert(editId ? "¡Producto editado correctamente!" : "¡Producto agregado exitosamente!");
+    btnSubmit.textContent = "Guardar Cambios";
+    btnSubmit.disabled = false;
+    alert(isEditing ? "¡Producto actualizado en PostgreSQL!" : "¡Producto creado en PostgreSQL!");
 });
 
-window.deleteProduct = (id) => {
-    if(confirm("🛑 ¿Estás seguro de que deseas borrar este producto?\nNo podrás recuperarlo.")) {
-        localProducts = localProducts.filter(p => p.id !== id);
-        localStorage.setItem('productos', JSON.stringify(localProducts));
+window.deleteProduct = async (id) => {
+    if(confirm("🛑 ¿Estás seguro de que deseas borrar este producto permanentemente de PostgreSQL?")) {
+        const { error } = await supabaseClient
+            .from('productos')
+            .delete()
+            .eq('id', id);
+            
+        if(error) {
+            alert("Error al borrar: " + error.message);
+            return;
+        }
         
-        // Remove from cart if someone added it prior to deletion
+        // Remove from local cart if someone added it prior to deletion
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         cart = cart.filter(i => i.productId !== id);
         localStorage.setItem('cart', JSON.stringify(cart));
         
-        renderAdminProducts();
+        await fetchAdminProducts();
     }
 };
 
@@ -198,18 +185,16 @@ window.editProduct = (id) => {
     document.getElementById('price').value = prod.price;
     document.getElementById('desc').value = prod.desc;
     
-    document.getElementById('form-title').textContent = "Editar Producto";
+    document.getElementById('form-title').textContent = "Editar Producto ID: " + prod.id;
     document.getElementById('cancel-edit').style.display = 'flex';
     
     const preview = document.getElementById('img-preview');
     preview.src = prod.img;
     preview.style.display = 'block';
     
-    // Clear image string so it won't overwrite unless a new file is chosen
     base64ImageString = ""; 
-    document.getElementById('image').value = ""; // Clear file input helper
+    document.getElementById('image').value = "";
 
-    // Smooth scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
@@ -225,4 +210,4 @@ function resetForm() {
 }
 
 // Kickoff
-renderAdminProducts();
+fetchAdminProducts();

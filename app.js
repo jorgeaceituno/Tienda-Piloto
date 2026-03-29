@@ -1,42 +1,26 @@
-// Data: Cargar desde localStorage o inicializar con 4 productos por defecto
-let productos = JSON.parse(localStorage.getItem('productos')) || [];
+// Configuración de Servidor PostgreSQL via Supabase API
+const supabaseUrl = 'https://qcjzppndhbtseddprvyl.supabase.co';
+const supabaseKey = 'sb_publishable_L1yKNMrWaiM-pKCzyUuxyA_9Zbwo4vg';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-if (productos.length === 0) {
-    productos = [
-        {
-            id: 1,
-            title: "Smartphone Pro Max 256GB",
-            category: "electronica",
-            price: 32000,
-            desc: "El smartphone más potente de la nueva generación, pantalla OLED de 6.7 pulgadas y batería para todo el día.",
-            img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400"
-        },
-        {
-            id: 2,
-            title: "Laptop UltraBook 14\"",
-            category: "electronica",
-            price: 24500,
-            desc: "Rendimiento sin límites en un diseño ultradelgado. Procesador de última generación, 16GB de RAM y 512GB SSD.",
-            img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400"
-        },
-        {
-            id: 5,
-            title: "Camiseta Básica de Algodón Premium",
-            category: "ropa",
-            price: 450,
-            desc: "Camiseta 100% algodón orgánico, suave al tacto y de corte moderno. Para cualquier ocasión.",
-            img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400"
-        },
-        {
-            id: 7,
-            title: "Sofá de Sala 3 Plazas",
-            category: "hogar",
-            price: 8500,
-            desc: "Sofá moderno y confortable. Fabricado con tela premium resistente a manchas.",
-            img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400"
-        }
-    ];
-    localStorage.setItem('productos', JSON.stringify(productos));
+// Data Dinámica
+let productos = [];
+
+async function fetchProductsFromDB() {
+    const { data, error } = await supabaseClient
+        .from('productos')
+        .select('*')
+        .order('id', { ascending: true });
+        
+    if (error) {
+        console.error("Error crítico leyendo PostgreSQL:", error);
+    } else if (data) {
+        // Mapeamos description a desc para mantener el resto del código sin romper
+        productos = data.map(p => ({
+            ...p,
+            desc: p.description
+        }));
+    }
 }
 
 // Utility functions
@@ -219,7 +203,9 @@ const renderProductDetail = () => {
 };
 
 // Event Listeners Initialization
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchProductsFromDB();
+
     // Initial Render
     updateCartUI();
     renderProducts();
