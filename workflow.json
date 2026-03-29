@@ -1,0 +1,115 @@
+{
+  "name": "Mi Tienda Piloto - Procesamiento de Pedidos",
+  "nodes": [
+    {
+      "id": "e4560b0e-6f8e-4a7a-8d07-cc1795e1e247",
+      "name": "Webhook Recibir Pedido",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido-nuevo",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "5285aa16-d8d5-45a2-9721-ac59d09c394c",
+      "name": "Notificar al Dueño (Email)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        550,
+        100
+      ],
+      "parameters": {
+        "fromEmail": "tienda@tudominio.com",
+        "toEmail": "jaceituno@gmail.com",
+        "subject": "={{ 'Nuevo Pedido de ' + $json.body.nombre }}",
+        "html": "='<h2>¡Tienes un nuevo pedido en Mi Tienda Piloto!</h2><br><b>Cliente:</b> ' + $json.body.nombre + '<br><b>Producto:</b> ' + $json.body.producto + '<br><b>Precio:</b> ' + $json.body.precio + '<br><b>Email:</b> ' + $json.body.correo + '<br><b>Teléfono:</b> ' + $json.body.telefono",
+        "options": {}
+      }
+    },
+    {
+      "id": "063152ef-374c-4545-9ec4-d830b8061e86",
+      "name": "Confirmar al Cliente (WhatsApp)",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        550,
+        300
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "REEMPLAZAR_CON_PHONE_NUMBER_ID",
+        "recipientPhoneNumber": "={{ $json.body.telefono }}",
+        "text": "='Hola ' + $json.body.nombre + ', gracias por tu compra en Mi Tienda Piloto. Hemos recibido tu pedido por el producto: ' + $json.body.producto + ' a ' + $json.body.precio + ' y pronto nos comunicaremos contigo.'"
+      }
+    },
+    {
+      "id": "8aa7fc53-53cb-485a-ba3e-ff2d5740fcfe",
+      "name": "Guardar en Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        550,
+        500
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REEMPLAZAR_CON_ID_DEL_DOCUMENTO",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Hoja 1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $now }}",
+            "Nombre": "={{ $json.body.nombre }}",
+            "Producto": "={{ $json.body.producto }}",
+            "Precio": "={{ $json.body.precio }}",
+            "Email": "={{ $json.body.correo }}",
+            "Teléfono": "={{ $json.body.telefono }}"
+          }
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Recibir Pedido": {
+      "main": [
+        [
+          {
+            "node": "Notificar al Dueño (Email)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Confirmar al Cliente (WhatsApp)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Guardar en Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,102 +1,43 @@
-// Mock Data: 12 Productos
-const productos = [
-    {
-        id: 1,
-        title: "Smartphone Pro Max 256GB",
-        category: "electronica",
-        price: 32000,
-        desc: "El smartphone más potente de la nueva generación, pantalla OLED de 6.7 pulgadas y batería para todo el día. Resistente al agua y cámara de nivel profesional.",
-        img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400"
-    },
-    {
-        id: 2,
-        title: "Auriculares Inalámbricos Noise Cancelling",
-        category: "electronica",
-        price: 5500,
-        desc: "Disfruta de sonido envolvente con cancelación activa de ruido. Diseño ergonómico, batería de 30 horas y emparejamiento rápido.",
-        img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"
-    },
-    {
-        id: 3,
-        title: "Laptop UltraBook 14\"",
-        category: "electronica",
-        price: 24500,
-        desc: "Rendimiento sin límites en un diseño ultradelgado. Procesador de última generación, 16GB de RAM y 512GB SSD.",
-        img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400"
-    },
-    {
-        id: 4,
-        title: "Smart TV 4K 55\"",
-        category: "electronica",
-        price: 15000,
-        desc: "Disfruta de tus series y películas favoritas con la mejor resolución 4K y colores vibrantes en su pantalla LED.",
-        img: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400"
-    },
-    {
-        id: 5,
-        title: "Camiseta Básica de Algodón Premium",
-        category: "ropa",
-        price: 450,
-        desc: "Camiseta 100% algodón orgánico, suave al tacto y de corte moderno. Para cualquier ocasión casual.",
-        img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400"
-    },
-    {
-        id: 6,
-        title: "Zapatillas Deportivas Running",
-        category: "ropa",
-        price: 2200,
-        desc: "Comodidad excepcional para tus entrenamientos y carreras. Tecnología de amortiguación avanzada.",
-        img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400"
-    },
-    {
-        id: 7,
-        title: "Sofá de Sala 3 Plazas",
-        category: "hogar",
-        price: 8500,
-        desc: "Sofá moderno y confortable. Fabricado con tela premium resistente a manchas y estructura de madera maciza.",
-        img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400"
-    },
-    {
-        id: 8,
-        title: "Lámpara de Escritorio LED",
-        category: "hogar",
-        price: 850,
-        desc: "Ilumina tu espacio de trabajo con luz regulable sin parpadeos. Diseño minimalista y control táctil inteligente.",
-        img: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400"
-    },
-    {
-        id: 9,
-        title: "Arroz Blanco Premium 1kg",
-        category: "alimentos",
-        price: 35,
-        desc: "Arroz de grano largo, seleccionado cuidadosamente. Ideal para acompañar tus guarniciones diarias.",
-        img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400"
-    },
-    {
-        id: 10,
-        title: "Café en Grano Premium (1kg)",
-        category: "alimentos",
-        price: 400,
-        desc: "Café cultivado en altura, tostado medio, con notas de chocolate y caramelo. El despertar perfecto para cada mañana.",
-        img: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400"
-    },
-    {
-        id: 11,
-        title: "Aceite de Oliva Virgen Extra",
-        category: "alimentos",
-        price: 180,
-        desc: "Aceite 100% puro de primera extracción en frío. Ideal para ensaladas, aderezos y cocinar más sano.",
-        img: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400"
-    },
-    {
-        id: 12,
-        title: "Frijoles Rojos 1kg",
-        category: "alimentos",
-        price: 45,
-        desc: "Frijoles rojos frescos, seleccionados a mano. Excelentes para preparar tus recetas tradicionales.",
-        img: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400"
-    }
-];
+// Data: Cargar desde localStorage o inicializar con 4 productos por defecto
+let productos = JSON.parse(localStorage.getItem('productos')) || [];
+
+if (productos.length === 0) {
+    productos = [
+        {
+            id: 1,
+            title: "Smartphone Pro Max 256GB",
+            category: "electronica",
+            price: 32000,
+            desc: "El smartphone más potente de la nueva generación, pantalla OLED de 6.7 pulgadas y batería para todo el día.",
+            img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400"
+        },
+        {
+            id: 2,
+            title: "Laptop UltraBook 14\"",
+            category: "electronica",
+            price: 24500,
+            desc: "Rendimiento sin límites en un diseño ultradelgado. Procesador de última generación, 16GB de RAM y 512GB SSD.",
+            img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400"
+        },
+        {
+            id: 5,
+            title: "Camiseta Básica de Algodón Premium",
+            category: "ropa",
+            price: 450,
+            desc: "Camiseta 100% algodón orgánico, suave al tacto y de corte moderno. Para cualquier ocasión.",
+            img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400"
+        },
+        {
+            id: 7,
+            title: "Sofá de Sala 3 Plazas",
+            category: "hogar",
+            price: 8500,
+            desc: "Sofá moderno y confortable. Fabricado con tela premium resistente a manchas.",
+            img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400"
+        }
+    ];
+    localStorage.setItem('productos', JSON.stringify(productos));
+}
 
 // Utility functions
 const formatPrice = (price) => `HNL ${price.toLocaleString('es-HN', { minimumFractionDigits: 2 })}`;

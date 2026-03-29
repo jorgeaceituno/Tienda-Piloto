@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador - Mi Tienda Piloto</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-form-group {
+            margin-bottom: 1rem;
+        }
+        .admin-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .admin-input, .admin-select, .admin-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        .admin-card {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        @media (max-width: 768px) {
+            .admin-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body style="background-color: var(--background-color);">
+    <header class="header">
+        <div class="container header-content" style="justify-content: space-between;">
+            <a href="index.html" class="logo" style="text-decoration:none;">← Volver a la Tienda</a>
+            <h1 style="color:white; margin:0; font-size:1.2rem;">👨‍💻 Administrador</h1>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+        <div class="admin-grid" style="display:grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+            <!-- Formulario -->
+            <div class="admin-card">
+                <h2 style="margin-bottom:1.5rem;" id="form-title">Agregar Producto</h2>
+                <form id="admin-form">
+                    <input type="hidden" id="edit-id" value="">
+                    
+                    <div class="admin-form-group">
+                        <label class="admin-label">Título del Producto</label>
+                        <input type="text" id="title" class="admin-input" required placeholder="Ej: Smartphone Samsung">
+                    </div>
+                    
+                    <div class="admin-form-group">
+                        <label class="admin-label">Categoría</label>
+                        <select id="category" class="admin-select" required>
+                            <option value="electronica">Electrónica</option>
+                            <option value="ropa">Ropa</option>
+                            <option value="hogar">Hogar</option>
+                            <option value="alimentos">Alimentos</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label class="admin-label">Precio (HNL)</label>
+                        <input type="number" id="price" class="admin-input" required min="1" step="0.01" placeholder="Ej: 1500.00">
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label class="admin-label">Descripción</label>
+                        <textarea id="desc" class="admin-textarea" required rows="4" placeholder="Describe los detalles..."></textarea>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label class="admin-label">Fotografía</label>
+                        <input type="file" id="image" class="admin-input" accept="image/*" style="padding: 0.5rem;" onchange="previewImage(event)">
+                        <small style="color:var(--text-muted);">Sube la imagen de tu computadora, se ajustará automáticamente.</small>
+                        <div style="margin-top:1rem; text-align:center;">
+                            <img id="img-preview" src="" style="max-width:100%; max-height:200px; display:none; border-radius:4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Guardar Cambios</button>
+                    <button type="button" id="cancel-edit" class="btn" style="width:100%; margin-top:0.5rem; display:none; justify-content:center;">Cancelar Edición</button>
+                </form>
+            </div>
+            
+            <!-- Lista -->
+            <div class="admin-card">
+                <h2 style="margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+                    Catálogo
+                    <span id="product-count" style="font-size:1rem; font-weight:normal; color:var(--text-muted);">0 productos</span>
+                </h2>
+                <div id="admin-product-list" style="display:flex; flex-direction:column; gap:1rem;">
+                    <!-- Los productos se inyectan con JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="admin.js"></script>
+</body>
+</html>
