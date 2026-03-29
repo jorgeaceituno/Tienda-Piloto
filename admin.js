@@ -1,16 +1,14 @@
 // Check Authentication FIRST
-const ADMIN_USER = "admin";
 const ADMIN_PASS = "tienda123";
 
 let isLoggedIn = sessionStorage.getItem("adminLogado") === "true";
 if (!isLoggedIn) {
-    const user = prompt("🔒 Ingrese su usuario (admin):");
-    const pass = prompt("🔑 Ingrese su contraseña (tienda123):");
-    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+    const pass = prompt("🔑 Ingrese la contraseña de administrador:");
+    if (pass === ADMIN_PASS) {
         sessionStorage.setItem("adminLogado", "true");
         alert("✅ Bienvenido al administrador.");
     } else {
-        alert("❌ Credenciales incorrectas.");
+        alert("❌ Contraseña incorrecta.");
         window.location.href = "index.html"; // Expulsar
     }
 }
