@@ -199,7 +199,7 @@ const renderProductDetail = () => {
     }
     
     // Update Page Title
-    document.title = `${product.title} - Mi Tienda Piloto`;
+    document.title = `${product.title} - Tienda Ropa Americana`;
 };
 
 // Event Listeners Initialization
