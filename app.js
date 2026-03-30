@@ -27,7 +27,7 @@ async function fetchProductsFromDB() {
 const formatPrice = (price) => `HNL ${price.toLocaleString('es-HN', { minimumFractionDigits: 2 })}`;
 
 const generateWhatsAppLink = (product) => {
-    const phone = "50431838215";
+    const phone = "50432981202";
     const message = `Hola, estoy interesado en el producto: ${product.title} que tiene un precio de ${formatPrice(product.price)}. ¿Está disponible?`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 };
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert("Tu carrito está vacío.");
                 return;
             }
-            const phone = "50431838215";
+            const phone = "50432981202";
             let message = "Hola! Quiero finalizar la compra de mi carrito:\n";
             cart.forEach(item => {
                 const product = productos.find(p => p.id === item.productId);
