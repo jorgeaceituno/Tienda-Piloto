@@ -75,6 +75,14 @@ function renderAdminProducts() {
                     <span style="color:var(--primary-color); font-weight:bold;">HNL ${prod.price.toLocaleString('es-HN', {minimumFractionDigits:2})}</span>
                     <br><small style="color:var(--text-muted); text-transform:capitalize;">${prod.category}</small>
                 </div>
+                <div style="display:flex; flex-direction:column; align-items:center; background:#fff; border:1px solid #ddd; border-radius:6px; padding:0.5rem;">
+                    <small style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Inventario</small>
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <button class="btn btn-outline" style="padding:0.2rem 0.5rem; font-size:1rem; height:auto; line-height:1;" onclick="updateStock(${prod.id}, -1)">-</button>
+                        <span style="font-weight:bold; font-size:1.1rem; min-width:1rem; text-align:center;" id="stock-${prod.id}">${prod.cantidad !== undefined ? prod.cantidad : 0}</span>
+                        <button class="btn btn-outline" style="padding:0.2rem 0.5rem; font-size:1rem; height:auto; line-height:1;" onclick="updateStock(${prod.id}, 1)">+</button>
+                    </div>
+                </div>
                 <div style="display:flex; gap:0.5rem; flex-direction:column;">
                     <button class="btn btn-outline" style="padding:0.4rem 0.8rem; font-size:0.9rem;" onclick="editProduct(${prod.id})">Editar</button>
                     <button class="btn" style="background:#e53e3e; color:white; border-color:#e53e3e; padding:0.4rem 0.8rem; font-size:0.9rem;" onclick="deleteProduct(${prod.id})">Borrar</button>
@@ -117,12 +125,14 @@ form.addEventListener('submit', async (e) => {
     const priceStr = document.getElementById('price').value.replace(/,/g, '');
     const price = parseFloat(priceStr);
     const desc = document.getElementById('desc').value;
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
     
     const productData = {
         title: title,
         category: category,
         price: price,
-        description: desc
+        description: desc,
+        cantidad: cantidad
     };
     
     let isEditing = editId !== "";
@@ -187,6 +197,7 @@ window.editProduct = (id) => {
     document.getElementById('title').value = prod.title;
     document.getElementById('category').value = prod.category;
     document.getElementById('price').value = prod.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('cantidad').value = prod.cantidad !== undefined ? prod.cantidad : 1;
     document.getElementById('desc').value = prod.desc;
     
     document.getElementById('form-title').textContent = "Editar Producto ID: " + prod.id;
@@ -212,6 +223,30 @@ function resetForm() {
     document.getElementById('img-preview').style.display = 'none';
     base64ImageString = "";
 }
+
+window.updateStock = async (id, change) => {
+    const prod = localProducts.find(p => p.id === id);
+    if (!prod) return;
+    
+    const currentStock = prod.cantidad !== undefined ? prod.cantidad : 0;
+    const newStock = Math.max(0, currentStock + change);
+    
+    if (currentStock === newStock) return; 
+    
+    prod.cantidad = newStock;
+    document.getElementById(`stock-${id}`).textContent = newStock;
+    
+    const { error } = await supabaseClient
+        .from('productos')
+        .update({ cantidad: newStock })
+        .eq('id', id);
+        
+    if (error) {
+        alert("Error al actualizar inventario: " + error.message);
+        prod.cantidad = currentStock;
+        document.getElementById(`stock-${id}`).textContent = currentStock;
+    }
+};
 
 // Kickoff
 fetchAdminProducts();
