@@ -114,7 +114,8 @@ form.addEventListener('submit', async (e) => {
     const editId = document.getElementById('edit-id').value;
     const title = document.getElementById('title').value;
     const category = document.getElementById('category').value;
-    const price = parseFloat(document.getElementById('price').value);
+    const priceStr = document.getElementById('price').value.replace(/,/g, '');
+    const price = parseFloat(priceStr);
     const desc = document.getElementById('desc').value;
     
     const productData = {
@@ -185,7 +186,7 @@ window.editProduct = (id) => {
     document.getElementById('edit-id').value = prod.id;
     document.getElementById('title').value = prod.title;
     document.getElementById('category').value = prod.category;
-    document.getElementById('price').value = prod.price;
+    document.getElementById('price').value = prod.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById('desc').value = prod.desc;
     
     document.getElementById('form-title').textContent = "Editar Producto ID: " + prod.id;
