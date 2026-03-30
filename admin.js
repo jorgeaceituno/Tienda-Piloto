@@ -1,17 +1,22 @@
 // Check Authentication FIRST
 const ADMIN_PASS = "tienda123";
-
 let isLoggedIn = sessionStorage.getItem("adminLogado") === "true";
-if (!isLoggedIn) {
-    const pass = prompt("🔑 Ingrese la contraseña de administrador:");
+
+// Si ya esta logueado, ocultamos la pantalla de bloqueo inmediatamente
+if (isLoggedIn) {
+    document.getElementById('login-overlay').style.display = 'none';
+}
+
+// Función enlazada al botón del HTML
+window.checkAdminPass = function() {
+    const pass = document.getElementById('admin-pass-input').value;
     if (pass === ADMIN_PASS) {
         sessionStorage.setItem("adminLogado", "true");
-        alert("✅ Bienvenido al administrador.");
+        document.getElementById('login-overlay').style.display = 'none';
     } else {
         alert("❌ Contraseña incorrecta.");
-        window.location.href = "index.html"; // Expulsar
     }
-}
+};
 
 // Init Supabase
 const supabaseUrl = 'https://qcjzppndhbtseddprvyl.supabase.co';
