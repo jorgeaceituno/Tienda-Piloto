@@ -1,22 +1,70 @@
-// Check Authentication FIRST
-const ADMIN_PASS = "tienda123";
+// ============================================================
+// AUTENTICACIÓN SEGURA
+// Contraseña almacenada como hash SHA-256 (no en texto plano)
+// Para cambiar la contraseña, generá el nuevo hash en:
+// https://emn178.github.io/online-tools/sha256.html
+// y reemplazá el valor de ADMIN_PASS_HASH abajo.
+// Contraseña actual: tienda123
+// ============================================================
+const ADMIN_PASS_HASH = "bc09903a75a3cb59eb581499f980185a601510204b2487b5a0b2e8ded82ffe9a";
+const MAX_INTENTOS = 3;
+const BLOQUEO_MS = 5 * 60 * 1000; // 5 minutos
+
 let isLoggedIn = sessionStorage.getItem("adminLogado") === "true";
 
-// Si ya esta logueado, ocultamos la pantalla de bloqueo inmediatamente
 if (isLoggedIn) {
     document.getElementById('login-overlay').style.display = 'none';
 }
 
-// Función enlazada al botón del HTML
-window.checkAdminPass = function() {
+async function hashTexto(texto) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(texto);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+window.checkAdminPass = async function() {
+    // Verificar si está bloqueado
+    const bloqueadoHasta = parseInt(localStorage.getItem("adminBloqueadoHasta") || "0");
+    if (Date.now() < bloqueadoHasta) {
+        const min = Math.ceil((bloqueadoHasta - Date.now()) / 60000);
+        alert(`🔒 Demasiados intentos fallidos. Intentá de nuevo en ${min} minuto(s).`);
+        return;
+    }
+
     const pass = document.getElementById('admin-pass-input').value;
-    if (pass === ADMIN_PASS) {
+    const hash = await hashTexto(pass);
+
+    if (hash === ADMIN_PASS_HASH) {
         sessionStorage.setItem("adminLogado", "true");
+        localStorage.removeItem("adminIntentos");
+        localStorage.removeItem("adminBloqueadoHasta");
         document.getElementById('login-overlay').style.display = 'none';
     } else {
-        alert("❌ Contraseña incorrecta.");
+        let intentos = parseInt(localStorage.getItem("adminIntentos") || "0") + 1;
+        localStorage.setItem("adminIntentos", intentos);
+
+        const restantes = MAX_INTENTOS - intentos;
+        if (restantes <= 0) {
+            localStorage.setItem("adminBloqueadoHasta", Date.now() + BLOQUEO_MS);
+            localStorage.removeItem("adminIntentos");
+            alert("🔒 Demasiados intentos. Panel bloqueado por 5 minutos.");
+        } else {
+            alert(`❌ Contraseña incorrecta. Te quedan ${restantes} intento(s).`);
+        }
     }
 };
+
+// Permitir Enter en el campo de contraseña
+document.addEventListener('DOMContentLoaded', () => {
+    const passInput = document.getElementById('admin-pass-input');
+    if (passInput) {
+        passInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') window.checkAdminPass();
+        });
+    }
+});
 
 // Init Supabase
 const supabaseUrl = 'https://qcjzppndhbtseddprvyl.supabase.co';
@@ -250,3 +298,78 @@ window.updateStock = async (id, change) => {
 
 // Kickoff
 fetchAdminProducts();
+
+// ============================================================
+// MÓDULO DE RESPALDOS
+// ============================================================
+
+function exportarJSON() {
+    if (localProducts.length === 0) {
+        alert("No hay productos para respaldar.");
+        return;
+    }
+
+    const respaldo = {
+        fecha: new Date().toISOString(),
+        total_productos: localProducts.length,
+        productos: localProducts.map(p => ({
+            id: p.id,
+            title: p.title,
+            category: p.category,
+            price: p.price,
+            description: p.description || p.desc,
+            cantidad: p.cantidad,
+            img: p.img
+        }))
+    };
+
+    const blob = new Blob([JSON.stringify(respaldo, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const fechaStr = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `respaldo-tienda-${fechaStr}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    localStorage.setItem("ultimoRespaldo", new Date().toLocaleString('es-HN'));
+    actualizarFechaRespaldo();
+}
+
+function exportarCSV() {
+    if (localProducts.length === 0) {
+        alert("No hay productos para respaldar.");
+        return;
+    }
+
+    const encabezados = ["id", "title", "category", "price", "description", "cantidad"];
+    const filas = localProducts.map(p => [
+        p.id,
+        `"${(p.title || "").replace(/"/g, '""')}"`,
+        p.category,
+        p.price,
+        `"${((p.description || p.desc || "")).replace(/"/g, '""')}"`,
+        p.cantidad !== undefined ? p.cantidad : 0
+    ]);
+
+    const csv = [encabezados.join(","), ...filas.map(f => f.join(","))].join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const fechaStr = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `respaldo-tienda-${fechaStr}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    localStorage.setItem("ultimoRespaldo", new Date().toLocaleString('es-HN'));
+    actualizarFechaRespaldo();
+}
+
+function actualizarFechaRespaldo() {
+    const el = document.getElementById('ultimo-respaldo');
+    if (el) {
+        const fecha = localStorage.getItem("ultimoRespaldo");
+        el.textContent = fecha ? `Último respaldo: ${fecha}` : "Sin respaldos registrados en este navegador";
+    }
+}

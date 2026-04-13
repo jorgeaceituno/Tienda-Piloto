@@ -114,9 +114,41 @@
                 </div>
             </div>
         </div>
+
+        <!-- MÓDULO DE RESPALDOS -->
+        <div class="admin-card" style="margin-top: 2rem;">
+            <h2 style="margin-bottom: 0.5rem;">🗄️ Respaldos del Catálogo</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Descargá una copia de todos tus productos. Se recomienda hacer un respaldo antes de cualquier cambio importante.
+            </p>
+
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                <button onclick="exportarJSON()" class="btn btn-primary" style="display: flex; align-items: center; gap: 0.5rem;">
+                    ⬇️ Descargar como JSON
+                </button>
+                <button onclick="exportarCSV()" class="btn btn-outline" style="display: flex; align-items: center; gap: 0.5rem;">
+                    📊 Descargar como CSV (Excel)
+                </button>
+            </div>
+
+            <p id="ultimo-respaldo" style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                Sin respaldos registrados en este navegador
+            </p>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 4px;">
+                <strong style="color: #92400e;">💡 ¿Con qué frecuencia respaldar?</strong>
+                <p style="margin: 0.5rem 0 0 0; color: #78350f; font-size: 0.85rem;">
+                    Cada vez que agregués, editéis o borrés productos. El archivo JSON sirve para restaurar datos, el CSV para abrir en Excel.
+                </p>
+            </div>
+        </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="admin.js"></script>
+    <script>
+        // Mostrar fecha del último respaldo al cargar
+        document.addEventListener('DOMContentLoaded', actualizarFechaRespaldo);
+    </script>
 </body>
 </html>
